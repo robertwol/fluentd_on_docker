@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  fluentd:
+    container_name: fluentd
+    # net: "host"
+    image: fluent/fluentd
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - "./fluentd/data:/fluentd/log"
+      - "./fluentd/etc:/fluentd/etc"
+    environment:
+      - "FLUENTD_CONF=fluentd.conf"
+  #
+  # mongodb:
+  #   build: ./mongodb/
+  #   container_name: mongodb
+  #   volumes:
+  #     - "./mongodb/data:/data/db"
+  #     # - "./fluentd/etc:/fluentd/etc"
+
+  nginx:
+    build: ./nginx/
+    # image: nginx:stable-alpine
+    container_name: nginx
+    volumes:
+      - "./nginx/data:/data/nginx"
+      - "./nginx/fluentd_pos:/data/fluentd_pos"
+      - "./nginx/bin:/data/bin"
+      - "./nginx/log:/var/log"
+      - "./nginx/etc/nginx:/etc/nginx"
+      - "./nginx/etc/fluentd:/etc/fluentd"
+    ports:
+      - "8080:80"
+    # environment:
+    #   - NGINX_HOST=foobar.com
+    #   - NGINX_PORT=80
+    entrypoint:
+      - "/data/bin/run.sh"
